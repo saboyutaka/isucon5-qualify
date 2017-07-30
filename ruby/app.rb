@@ -114,10 +114,7 @@ class Isucon5::WebApp < Sinatra::Base
     end
 
     def is_friend?(another_id)
-      user_id = session[:user_id]
-      query   = 'SELECT COUNT(1) AS cnt FROM relations WHERE (one = ? AND another = ?) OR (one = ? AND another = ?)'
-      cnt     = db.xquery(query, user_id, another_id, another_id, user_id).first[:cnt]
-      cnt.to_i > 0 ? true : false
+      friend_ids.include?(another_id)
     end
 
     def is_friend_account?(account_name)
