@@ -221,15 +221,26 @@ class Isucon5::WebApp < Sinatra::Base
       entries_of_friends << entry
     end
 
-    comments_of_friends = []
-    db.query('SELECT * FROM comments ORDER BY created_at DESC LIMIT 1000').each do |comment|
-      next unless is_friend?(comment[:user_id])
-      entry              = db.xquery('SELECT * FROM entries WHERE id = ?', comment[:entry_id]).first
-      entry[:is_private] = (entry[:private] == 1)
-      next if entry[:is_private] && !permitted?(entry[:user_id])
-      comments_of_friends << comment
-      break if comments_of_friends.size >= 10
-    end
+    comments_of_friends_ids_query = <<~SQL
+      SELECT c.id
+      FROM comments c
+      JOIN entries e on c.entry_id = e.id
+      where c.user_id IN (?)
+      AND (e.private = 0 OR e.user_id IN (?) OR e.user_id = ? )
+      ORDER BY c.created_at DESC LIMIT 10
+    SQL
+    comments_of_friends_ids = db.xquery(comments_of_friends_ids_query, friend_ids, friend_ids, current_user[:id]).to_a.map {|h| h[:id]}
+
+    comments_of_friends_query = <<~SQL
+      SELECT c.*, u.account_name, u.nick_name, u2.account_name as entry_account_name, u2.nick_name as entry_nick_name
+      FROM comments c
+      JOIN users u on c.user_id = u.id
+      JOIN entries e on c.entry_id = e.id
+      JOIN users u2 on e.user_id = u2.id
+      WHERE c.id IN (?)
+      ORDER BY c.created_at DESC LIMIT 10
+    SQL
+    comments_of_friends = db.xquery(comments_of_friends_query, comments_of_friends_ids).to_a
 
     friends_query = 'SELECT * FROM relations WHERE one = ? OR another = ? ORDER BY created_at DESC'
     friends_map   = {}
