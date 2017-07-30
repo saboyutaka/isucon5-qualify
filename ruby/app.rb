@@ -85,6 +85,16 @@ class Isucon5::WebApp < Sinatra::Base
       @user
     end
 
+    def friend_ids
+      return @friend_ids if @friend_ids
+      query = <<~SQL
+        select another from relations where one = ?
+      SQL
+      @friend_ids = db.xquery(query, session[:user_id]).to_a.map {|h| h[:another]}
+      @friend_ids = [nil] if @friend_ids.empty?
+      @friend_ids
+    end
+
     def authenticated!
       unless current_user
         redirect '/login'
@@ -186,11 +196,14 @@ class Isucon5::WebApp < Sinatra::Base
     comments_for_me = db.xquery(comments_for_me_query, current_user[:id])
 
     entries_of_friends = []
-    db.query('SELECT * FROM entries ORDER BY created_at DESC LIMIT 1000').each do |entry|
-      next unless is_friend?(entry[:user_id])
+    query              = <<~SQL
+      SELECT * FROM entries
+      where user_id IN (?)
+      ORDER BY created_at DESC LIMIT 10
+    SQL
+    db.xquery(query, friend_ids).each do |entry|
       entry[:title] = entry[:body].split(/\n/).first
       entries_of_friends << entry
-      break if entries_of_friends.size >= 10
     end
 
     comments_of_friends = []
