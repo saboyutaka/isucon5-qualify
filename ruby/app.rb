@@ -199,15 +199,24 @@ class Isucon5::WebApp < Sinatra::Base
     SQL
     comments_for_me = db.xquery(comments_for_me_query, current_user[:id])
 
+    entries_of_friends_ids_query = <<~SQL
+      SELECT id
+      FROM entries
+      where user_id IN (?)
+      ORDER BY created_at DESC LIMIT 10
+    SQL
+    entries_of_friends_ids = db.xquery(entries_of_friends_ids_query, friend_ids).to_a.map {|h| h[:id]}
+    entries_of_friends_ids = [nil] if entries_of_friends_ids.empty?
+
     entries_of_friends = []
     query              = <<~SQL
       SELECT entries.*, users.account_name, users.nick_name
       FROM entries
       JOIN users on entries.user_id = users.id
-      where user_id IN (?)
+      where entries.id IN (?)
       ORDER BY created_at DESC LIMIT 10
     SQL
-    db.xquery(query, friend_ids).each do |entry|
+    db.xquery(query, entries_of_friends_ids).each do |entry|
       entry[:title] = entry[:body].split(/\n/).first
       entries_of_friends << entry
     end
