@@ -9,12 +9,6 @@ config: ## copy configs from repository to conf
 	@make -s mysql-restart
 	@make -s ruby-restart
 
-ruby-start: ## Run Server
-	@sudo systemctl start isuxi.ruby
-
-ruby-stop: ## Stop Server
-	@sudo systemctl stop isuxi.ruby
-
 ruby-log: ## log Server
 	@sudo journalctl -u isuxi.ruby
 
@@ -35,7 +29,7 @@ nginx-error-log: ## tail nginx error.log
 	@sudo tail -f /var/log/nginx/error.log
 
 alp: ## Run alp
-	@alp -f /var/log/nginx/access.log  --sum  -r --aggregates '/profile/\w+, /diary/entry/\d+, /diary/entries/\w+, /diary/comment/\d+' --start-time-duration 5m
+	@alp -f /var/log/nginx/access.log  --sum  -r --aggregates '/profile/\w+, /diary/entry/\d+, /diary/entries/\w+, /diary/comment/\d+, /friends/\w+' --start-time-duration 5m
 
 db-restart: ## Restart mysql
 	@sudo systemctl restart mysql
