@@ -378,14 +378,17 @@ class Isucon5::WebApp < Sinatra::Base
 
   get '/friends' do
     authenticated!
-    query   = 'SELECT * FROM relations WHERE one = ? OR another = ? ORDER BY created_at DESC'
-    friends = {}
-    db.xquery(query, current_user[:id], current_user[:id]).each do |rel|
-      key               = (rel[:one] == current_user[:id] ? :another : :one)
-      friends[rel[key]] ||= rel[:created_at]
-    end
-    list = friends.map {|user_id, created_at| [user_id, created_at]}
-    erb :friends, locals: { friends: list }
+    
+    query = <<~SQL
+      select r.created_at, u.account_name, u.nick_name
+      from relations r
+      join users u on u.id = r.another
+      where r.one = ?
+      ORDER BY created_at DESC
+    SQL
+
+    friends = db.xquery(query, current_user[:id]).to_a
+    erb :friends, locals: { friends: friends }
   end
 
   post '/friends/:account_name' do
