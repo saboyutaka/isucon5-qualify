@@ -1,12 +1,25 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    byebug (9.0.6)
+    coderay (1.1.1)
     erubis (2.7.0)
     kgio (2.11.0)
+    method_source (0.8.2)
     mustermann (1.0.0)
     mysql2 (0.4.8)
     mysql2-cs-bind (0.0.6)
       mysql2
+    pry (0.10.4)
+      coderay (~> 1.1.0)
+      method_source (~> 0.8.1)
+      slop (~> 3.4)
+    pry-byebug (3.4.2)
+      byebug (~> 9.0)
+      pry (~> 0.10)
+    pry-doc (0.10.0)
+      pry (~> 0.9)
+      yard (~> 0.9)
     rack (2.0.3)
     rack-protection (2.0.0)
       rack
@@ -16,10 +29,12 @@ GEM
       rack (~> 2.0)
       rack-protection (= 2.0.0)
       tilt (~> 2.0)
+    slop (3.6.0)
     tilt (2.0.8)
     unicorn (5.3.0)
       kgio (~> 2.6)
       raindrops (~> 0.7)
+    yard (0.9.9)
 
 PLATFORMS
   ruby
@@ -28,6 +43,8 @@ DEPENDENCIES
   erubis
   mysql2
   mysql2-cs-bind
+  pry-byebug
+  pry-doc
   sinatra
   unicorn
 
