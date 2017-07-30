@@ -186,9 +186,13 @@ class Isucon5::WebApp < Sinatra::Base
                       .map {|entry| entry[:is_private] = (entry[:private] == 1); entry[:title], entry[:content] = entry[:body].split(/\n/, 2); entry}
 
     comments_for_me_query = <<~SQL
-      SELECT c.id AS id, c.entry_id AS entry_id, c.user_id AS user_id, c.comment AS comment, c.created_at AS created_at
+      SELECT
+        c.id AS id, c.entry_id AS entry_id,
+        u.account_name AS account_name, u.nick_name as nick_name,
+        c.comment AS comment, c.created_at AS created_at
       FROM comments c
       JOIN entries e ON c.entry_id = e.id
+      JOIN users u ON c.user_id = u.id
       WHERE e.user_id = ?
       ORDER BY c.created_at DESC
       LIMIT 10
@@ -197,7 +201,9 @@ class Isucon5::WebApp < Sinatra::Base
 
     entries_of_friends = []
     query              = <<~SQL
-      SELECT * FROM entries
+      SELECT entries.*, users.account_name, users.nick_name
+      FROM entries
+      JOIN users on entries.user_id = users.id
       where user_id IN (?)
       ORDER BY created_at DESC LIMIT 10
     SQL
@@ -225,8 +231,9 @@ class Isucon5::WebApp < Sinatra::Base
     friends = friends_map.map {|user_id, created_at| [user_id, created_at]}
 
     query = <<~SQL
-      SELECT user_id, owner_id, DATE(created_at) AS date, MAX(created_at) AS updated
+      SELECT user_id, owner_id, users.account_name, users.nick_name, DATE(created_at) AS date, MAX(created_at) AS updated
       FROM footprints
+      JOIN users on footprints.owner_id = users.id
       WHERE user_id = ?
       GROUP BY user_id, owner_id, DATE(created_at)
       ORDER BY updated DESC
