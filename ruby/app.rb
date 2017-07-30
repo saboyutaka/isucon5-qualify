@@ -5,12 +5,9 @@ require 'tilt/erubis'
 require 'erubis'
 
 module Isucon5
-  class AuthenticationError < StandardError;
-  end
-  class PermissionDenied < StandardError;
-  end
-  class ContentNotFound < StandardError;
-  end
+  class AuthenticationError < StandardError; end
+  class PermissionDenied < StandardError; end
+  class ContentNotFound < StandardError; end
   module TimeWithoutZone
     def to_s
       strftime("%F %H:%M:%S")
@@ -31,8 +28,8 @@ class Isucon5::WebApp < Sinatra::Base
     def config
       @config ||= {
         db: {
-          host:     ENV['ISUCON5_DB_HOST'] || 'localhost',
-          port:     ENV['ISUCON5_DB_PORT'] && ENV['ISUCON5_DB_PORT'].to_i,
+          host: ENV['ISUCON5_DB_HOST'] || 'localhost',
+          port: ENV['ISUCON5_DB_PORT'] && ENV['ISUCON5_DB_PORT'].to_i,
           username: ENV['ISUCON5_DB_USER'] || 'root',
           password: ENV['ISUCON5_DB_PASSWORD'],
           database: ENV['ISUCON5_DB_NAME'] || 'isucon5q',
@@ -43,11 +40,11 @@ class Isucon5::WebApp < Sinatra::Base
     def db
       return Thread.current[:isucon5_db] if Thread.current[:isucon5_db]
       client = Mysql2::Client.new(
-        host:      config[:db][:host],
-        port:      config[:db][:port],
-        username:  config[:db][:username],
-        password:  config[:db][:password],
-        database:  config[:db][:database],
+        host: config[:db][:host],
+        port: config[:db][:port],
+        username: config[:db][:username],
+        password: config[:db][:password],
+        database: config[:db][:database],
         reconnect: true,
       )
       client.query_options.merge!(symbolize_keys: true)
@@ -56,12 +53,12 @@ class Isucon5::WebApp < Sinatra::Base
     end
 
     def authenticate(email, password)
-      query = <<~SQL
-        SELECT u.id AS id, u.account_name AS account_name, u.nick_name AS nick_name, u.email AS email
-        FROM users u
-        JOIN salts s ON u.id = s.user_id
-        WHERE u.email = ? AND u.passhash = SHA2(CONCAT(?, s.salt), 512)
-      SQL
+      query = <<SQL
+SELECT u.id AS id, u.account_name AS account_name, u.nick_name AS nick_name, u.email AS email
+FROM users u
+JOIN salts s ON u.id = s.user_id
+WHERE u.email = ? AND u.passhash = SHA2(CONCAT(?, s.salt), 512)
+SQL
       result = db.xquery(query, email, password).first
       unless result
         raise Isucon5::AuthenticationError
@@ -104,8 +101,8 @@ class Isucon5::WebApp < Sinatra::Base
 
     def is_friend?(another_id)
       user_id = session[:user_id]
-      query   = 'SELECT COUNT(1) AS cnt FROM relations WHERE (one = ? AND another = ?) OR (one = ? AND another = ?)'
-      cnt     = db.xquery(query, user_id, another_id, another_id, user_id).first[:cnt]
+      query = 'SELECT COUNT(1) AS cnt FROM relations WHERE (one = ? AND another = ?) OR (one = ? AND another = ?)'
+      cnt = db.xquery(query, user_id, another_id, another_id, user_id).first[:cnt]
       cnt.to_i > 0 ? true : false
     end
 
@@ -130,7 +127,6 @@ class Isucon5::WebApp < Sinatra::Base
       石川県 福井県 山梨県 長野県 岐阜県 静岡県 愛知県 三重県 滋賀県 京都府 大阪府 兵庫県 奈良県 和歌山県 鳥取県 島根県
       岡山県 広島県 山口県 徳島県 香川県 愛媛県 高知県 福岡県 佐賀県 長崎県 熊本県 大分県 宮崎県 鹿児島県 沖縄県
     )
-
     def prefectures
       PREFS
     end
@@ -171,17 +167,17 @@ class Isucon5::WebApp < Sinatra::Base
     profile = db.xquery('SELECT * FROM profiles WHERE user_id = ?', current_user[:id]).first
 
     entries_query = 'SELECT * FROM entries WHERE user_id = ? ORDER BY created_at LIMIT 5'
-    entries       = db.xquery(entries_query, current_user[:id])
-                      .map {|entry| entry[:is_private] = (entry[:private] == 1); entry[:title], entry[:content] = entry[:body].split(/\n/, 2); entry}
+    entries = db.xquery(entries_query, current_user[:id])
+      .map{ |entry| entry[:is_private] = (entry[:private] == 1); entry[:title], entry[:content] = entry[:body].split(/\n/, 2); entry }
 
-    comments_for_me_query = <<~SQL
-      SELECT c.id AS id, c.entry_id AS entry_id, c.user_id AS user_id, c.comment AS comment, c.created_at AS created_at
-      FROM comments c
-      JOIN entries e ON c.entry_id = e.id
-      WHERE e.user_id = ?
-      ORDER BY c.created_at DESC
-      LIMIT 10
-    SQL
+    comments_for_me_query = <<SQL
+SELECT c.id AS id, c.entry_id AS entry_id, c.user_id AS user_id, c.comment AS comment, c.created_at AS created_at
+FROM comments c
+JOIN entries e ON c.entry_id = e.id
+WHERE e.user_id = ?
+ORDER BY c.created_at DESC
+LIMIT 10
+SQL
     comments_for_me = db.xquery(comments_for_me_query, current_user[:id])
 
     entries_of_friends = []
@@ -195,7 +191,7 @@ class Isucon5::WebApp < Sinatra::Base
     comments_of_friends = []
     db.query('SELECT * FROM comments ORDER BY created_at DESC LIMIT 1000').each do |comment|
       next unless is_friend?(comment[:user_id])
-      entry              = db.xquery('SELECT * FROM entries WHERE id = ?', comment[:entry_id]).first
+      entry = db.xquery('SELECT * FROM entries WHERE id = ?', comment[:entry_id]).first
       entry[:is_private] = (entry[:private] == 1)
       next if entry[:is_private] && !permitted?(entry[:user_id])
       comments_of_friends << comment
@@ -203,47 +199,47 @@ class Isucon5::WebApp < Sinatra::Base
     end
 
     friends_query = 'SELECT * FROM relations WHERE one = ? OR another = ? ORDER BY created_at DESC'
-    friends_map   = {}
+    friends_map = {}
     db.xquery(friends_query, current_user[:id], current_user[:id]).each do |rel|
-      key                   = (rel[:one] == current_user[:id] ? :another : :one)
+      key = (rel[:one] == current_user[:id] ? :another : :one)
       friends_map[rel[key]] ||= rel[:created_at]
     end
-    friends = friends_map.map {|user_id, created_at| [user_id, created_at]}
+    friends = friends_map.map{|user_id, created_at| [user_id, created_at]}
 
-    query = <<~SQL
-      SELECT user_id, owner_id, DATE(created_at) AS date, MAX(created_at) AS updated
-      FROM footprints
-      WHERE user_id = ?
-      GROUP BY user_id, owner_id, DATE(created_at)
-      ORDER BY updated DESC
-      LIMIT 10
-    SQL
+    query = <<SQL
+SELECT user_id, owner_id, DATE(created_at) AS date, MAX(created_at) AS updated
+FROM footprints
+WHERE user_id = ?
+GROUP BY user_id, owner_id, DATE(created_at)
+ORDER BY updated DESC
+LIMIT 10
+SQL
     footprints = db.xquery(query, current_user[:id])
 
     locals = {
-      profile:             profile || {},
-      entries:             entries,
-      comments_for_me:     comments_for_me,
-      entries_of_friends:  entries_of_friends,
+      profile: profile || {},
+      entries: entries,
+      comments_for_me: comments_for_me,
+      entries_of_friends: entries_of_friends,
       comments_of_friends: comments_of_friends,
-      friends:             friends,
-      footprints:          footprints
+      friends: friends,
+      footprints: footprints
     }
     erb :index, locals: locals
   end
 
   get '/profile/:account_name' do
     authenticated!
-    owner   = user_from_account(params['account_name'])
-    prof    = db.xquery('SELECT * FROM profiles WHERE user_id = ?', owner[:id]).first
-    prof    = {} unless prof
-    query   = if permitted?(owner[:id])
-                'SELECT * FROM entries WHERE user_id = ? ORDER BY created_at LIMIT 5'
-              else
-                'SELECT * FROM entries WHERE user_id = ? AND private=0 ORDER BY created_at LIMIT 5'
-              end
+    owner = user_from_account(params['account_name'])
+    prof = db.xquery('SELECT * FROM profiles WHERE user_id = ?', owner[:id]).first
+    prof = {} unless prof
+    query = if permitted?(owner[:id])
+              'SELECT * FROM entries WHERE user_id = ? ORDER BY created_at LIMIT 5'
+            else
+              'SELECT * FROM entries WHERE user_id = ? AND private=0 ORDER BY created_at LIMIT 5'
+            end
     entries = db.xquery(query, owner[:id])
-                .map {|entry| entry[:is_private] = (entry[:private] == 1); entry[:title], entry[:content] = entry[:body].split(/\n/, 2); entry}
+      .map{ |entry| entry[:is_private] = (entry[:private] == 1); entry[:title], entry[:content] = entry[:body].split(/\n/, 2); entry }
     mark_footprint(owner[:id])
     erb :profile, locals: { owner: owner, profile: prof, entries: entries, private: permitted?(owner[:id]) }
   end
@@ -257,16 +253,16 @@ class Isucon5::WebApp < Sinatra::Base
 
     prof = db.xquery('SELECT * FROM profiles WHERE user_id = ?', current_user[:id]).first
     if prof
-      query = <<~SQL
-        UPDATE profiles
-        SET first_name=?, last_name=?, sex=?, birthday=?, pref=?, updated_at=CURRENT_TIMESTAMP()
-        WHERE user_id = ?
-      SQL
+      query = <<SQL
+UPDATE profiles
+SET first_name=?, last_name=?, sex=?, birthday=?, pref=?, updated_at=CURRENT_TIMESTAMP()
+WHERE user_id = ?
+SQL
       args << current_user[:id]
     else
-      query = <<~SQL
-        INSERT INTO profiles (user_id,first_name,last_name,sex,birthday,pref) VALUES (?,?,?,?,?,?)
-      SQL
+      query = <<SQL
+INSERT INTO profiles (user_id,first_name,last_name,sex,birthday,pref) VALUES (?,?,?,?,?,?)
+SQL
       args.unshift(current_user[:id])
     end
     db.xquery(query, *args)
@@ -275,14 +271,14 @@ class Isucon5::WebApp < Sinatra::Base
 
   get '/diary/entries/:account_name' do
     authenticated!
-    owner   = user_from_account(params['account_name'])
-    query   = if permitted?(owner[:id])
-                'SELECT * FROM entries WHERE user_id = ? ORDER BY created_at DESC LIMIT 20'
-              else
-                'SELECT * FROM entries WHERE user_id = ? AND private=0 ORDER BY created_at DESC LIMIT 20'
-              end
+    owner = user_from_account(params['account_name'])
+    query = if permitted?(owner[:id])
+              'SELECT * FROM entries WHERE user_id = ? ORDER BY created_at DESC LIMIT 20'
+            else
+              'SELECT * FROM entries WHERE user_id = ? AND private=0 ORDER BY created_at DESC LIMIT 20'
+            end
     entries = db.xquery(query, owner[:id])
-                .map {|entry| entry[:is_private] = (entry[:private] == 1); entry[:title], entry[:content] = entry[:body].split(/\n/, 2); entry}
+      .map{ |entry| entry[:is_private] = (entry[:private] == 1); entry[:title], entry[:content] = entry[:body].split(/\n/, 2); entry }
     mark_footprint(owner[:id])
     erb :entries, locals: { owner: owner, entries: entries, myself: (current_user[:id] == owner[:id]) }
   end
@@ -292,8 +288,8 @@ class Isucon5::WebApp < Sinatra::Base
     entry = db.xquery('SELECT * FROM entries WHERE id = ?', params['entry_id']).first
     raise Isucon5::ContentNotFound unless entry
     entry[:title], entry[:content] = entry[:body].split(/\n/, 2)
-    entry[:is_private]             = (entry[:private] == 1)
-    owner                          = get_user(entry[:user_id])
+    entry[:is_private] = (entry[:private] == 1)
+    owner = get_user(entry[:user_id])
     if entry[:is_private] && !permitted?(owner[:id])
       raise Isucon5::PermissionDenied
     end
@@ -305,7 +301,7 @@ class Isucon5::WebApp < Sinatra::Base
   post '/diary/entry' do
     authenticated!
     query = 'INSERT INTO entries (user_id, private, body) VALUES (?,?,?)'
-    body  = (params['title'] || "タイトルなし") + "\n" + params['content']
+    body = (params['title'] || "タイトルなし") + "\n" + params['content']
     db.xquery(query, current_user[:id], (params['private'] ? '1' : '0'), body)
     redirect "/diary/entries/#{current_user[:account_name]}"
   end
@@ -327,27 +323,27 @@ class Isucon5::WebApp < Sinatra::Base
 
   get '/footprints' do
     authenticated!
-    query = <<~SQL
-      SELECT user_id, owner_id, DATE(created_at) AS date, MAX(created_at) as updated
-      FROM footprints
-      WHERE user_id = ?
-      GROUP BY user_id, owner_id, DATE(created_at)
-      ORDER BY updated DESC
-      LIMIT 50
-    SQL
+    query = <<SQL
+SELECT user_id, owner_id, DATE(created_at) AS date, MAX(created_at) as updated
+FROM footprints
+WHERE user_id = ?
+GROUP BY user_id, owner_id, DATE(created_at)
+ORDER BY updated DESC
+LIMIT 50
+SQL
     footprints = db.xquery(query, current_user[:id])
     erb :footprints, locals: { footprints: footprints }
   end
 
   get '/friends' do
     authenticated!
-    query   = 'SELECT * FROM relations WHERE one = ? OR another = ? ORDER BY created_at DESC'
+    query = 'SELECT * FROM relations WHERE one = ? OR another = ? ORDER BY created_at DESC'
     friends = {}
     db.xquery(query, current_user[:id], current_user[:id]).each do |rel|
-      key               = (rel[:one] == current_user[:id] ? :another : :one)
+      key = (rel[:one] == current_user[:id] ? :another : :one)
       friends[rel[key]] ||= rel[:created_at]
     end
-    list = friends.map {|user_id, created_at| [user_id, created_at]}
+    list = friends.map{|user_id, created_at| [user_id, created_at]}
     erb :friends, locals: { friends: list }
   end
 

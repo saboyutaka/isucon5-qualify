@@ -5,11 +5,11 @@ srand(941) # to create the same data
 def db
   return @client if @client
   @client = Mysql2::Client.new(
-    host:      'localhost',
-    port:      nil,
-    username:  'root',
-    password:  nil,
-    database:  'isucon5q',
+    host: 'localhost',
+    port: nil,
+    username: 'root',
+    password: nil,
+    database: 'isucon5q',
     reconnect: true,
   )
   @client.query_options.merge!(symbolize_keys: true)
@@ -23,92 +23,92 @@ end
 #         relations: [ who, who, who, who ],
 #       },
 
-def main
-  users   = {} # sym => user_id
+def main()
+  users = {} # sym => user_id
   entries = {} # sym => entry_id
 
   tree = {
     u1: {
-      info:       ['tagomoris', 'モリス', 'moris@tagomor.is', 'moris11', 'さとし', 'たごもり'],
-      entries:    [
-                    [:e1_1, false, 'はじめました', 'これがうわさのアレか!'],
-                    [:e1_2, false, 'つづき', "いやっほおおおおおおおお\nおおおおおおおおおおおおおおおおおおおおおおおおおおおおおう"],
-                    [:e1_3, true, 'ひみつ', 'まじもう仕事がこんなことになっていようとはと思ってたら予選なしにするんだった! まじで!'],
-                    [:e1_4, false, 'ビールのんだ', 'うまああああああああああああああああああああああああああああああああああああああああああああああああああああい!'],
-                  ],
-      comments:   [
-                    [:e2_9, 'おつ'], [:e2_9, 'おつ'], [:e2_9, 'おつ'], [:e2_9, 'おつ'], [:e2_9, 'おつ'], [:e2_9, 'おつ'], [:e2_9, 'おつ'],
-                    [:e2_9, 'おつ'], [:e2_9, 'おつ'], [:e2_9, 'おつ'], [:e2_9, 'おつ'], [:e2_9, 'おつ'], [:e2_9, 'おつ'], [:e2_9, 'おつ'],
-                    [:e2_9, 'おつ'], [:e2_9, 'おつ'], [:e2_9, 'おつ'], [:e2_9, 'おつ'], [:e2_9, 'おつ'], [:e2_9, 'おつ'], [:e2_9, 'おつ'],
-                    [:e2_9, 'おつ'], [:e2_9, 'おつ'], [:e2_9, 'おつ'], [:e2_9, 'おつ'], [:e2_9, 'おつ'], [:e2_9, 'おつ'], [:e2_9, 'おつ'],
-                    [:e2_9, 'おつ'], [:e2_9, 'おつ'], [:e2_9, 'おつ'], [:e2_9, 'おつ'], [:e2_9, 'おつ'], [:e2_9, 'おつ'], [:e2_9, 'おつ'],
-                    [:e2_9, 'おつ'], [:e2_9, 'おつ'], [:e2_9, 'おつ'], [:e2_9, 'おつ'], [:e2_9, 'おつ'], [:e2_9, 'おつ'], [:e2_9, 'おつ'],
-                    [:e2_9, 'おつ'], [:e2_9, 'おつ'], [:e2_9, 'おつ'],
-                  ],
+      info: ['tagomoris', 'モリス', 'moris@tagomor.is', 'moris11', 'さとし', 'たごもり'],
+      entries: [
+        [ :e1_1, false, 'はじめました', 'これがうわさのアレか!' ],
+        [ :e1_2, false, 'つづき', "いやっほおおおおおおおお\nおおおおおおおおおおおおおおおおおおおおおおおおおおおおおう" ],
+        [ :e1_3, true,  'ひみつ', 'まじもう仕事がこんなことになっていようとはと思ってたら予選なしにするんだった! まじで!' ],
+        [ :e1_4, false, 'ビールのんだ', 'うまああああああああああああああああああああああああああああああああああああああああああああああああああああい!' ],
+      ],
+      comments: [
+        [:e2_9, 'おつ'],[:e2_9, 'おつ'],[:e2_9, 'おつ'],[:e2_9, 'おつ'],[:e2_9, 'おつ'],[:e2_9, 'おつ'],[:e2_9, 'おつ'],
+        [:e2_9, 'おつ'],[:e2_9, 'おつ'],[:e2_9, 'おつ'],[:e2_9, 'おつ'],[:e2_9, 'おつ'],[:e2_9, 'おつ'],[:e2_9, 'おつ'],
+        [:e2_9, 'おつ'],[:e2_9, 'おつ'],[:e2_9, 'おつ'],[:e2_9, 'おつ'],[:e2_9, 'おつ'],[:e2_9, 'おつ'],[:e2_9, 'おつ'],
+        [:e2_9, 'おつ'],[:e2_9, 'おつ'],[:e2_9, 'おつ'],[:e2_9, 'おつ'],[:e2_9, 'おつ'],[:e2_9, 'おつ'],[:e2_9, 'おつ'],
+        [:e2_9, 'おつ'],[:e2_9, 'おつ'],[:e2_9, 'おつ'],[:e2_9, 'おつ'],[:e2_9, 'おつ'],[:e2_9, 'おつ'],[:e2_9, 'おつ'],
+        [:e2_9, 'おつ'],[:e2_9, 'おつ'],[:e2_9, 'おつ'],[:e2_9, 'おつ'],[:e2_9, 'おつ'],[:e2_9, 'おつ'],[:e2_9, 'おつ'],
+        [:e2_9, 'おつ'],[:e2_9, 'おつ'],[:e2_9, 'おつ'],
+      ],
       footprints: [:u2, :u2],
-      relations:  [:u2],
+      relations: [:u2],
     },
     u2: {
-      info:       ['kamipo', 'かみぽ', 'kamipo@kamipopo.po', 'po1', 'りゅうた', 'かみぞの'],
-      entries:    [
-                    [:e2_1, false, 'いち', 'いち' * 5],
-                    [:e2_2, false, 'に', 'にー' * 5],
-                    [:e2_3, false, 'さん', 'さん' * 5],
-                    [:e2_4, false, 'しい', 'しいいいいい' * 5],
-                    [:e2_5, false, 'ごごご', 'ごごごごご' * 5],
-                    [:e2_6, false, 'ろくう', "ろく\n" * 5],
-                    [:e2_7, false, 'ななななな', "なな" * 5],
-                    [:e2_8, false, 'はち', "はち？\n" * 5],
-                    [:e2_9, false, 'きゅう', "くくくくくく………\n" * 5],
-                  ],
-      comments:   [[:e1_1, "1ゲット"], [:e1_3, "ねるねるねるね"],],
+      info: ['kamipo', 'かみぽ', 'kamipo@kamipopo.po', 'po1', 'りゅうた', 'かみぞの'],
+      entries: [
+        [ :e2_1, false, 'いち', 'いち' * 5 ],
+        [ :e2_2, false, 'に', 'にー' * 5 ],
+        [ :e2_3, false, 'さん', 'さん' * 5 ],
+        [ :e2_4, false, 'しい', 'しいいいいい' * 5 ],
+        [ :e2_5, false, 'ごごご', 'ごごごごご' * 5 ],
+        [ :e2_6, false, 'ろくう', "ろく\n" * 5 ],
+        [ :e2_7, false, 'ななななな', "なな" * 5 ],
+        [ :e2_8, false, 'はち', "はち？\n" * 5 ],
+        [ :e2_9, false, 'きゅう', "くくくくくく………\n" * 5 ],
+      ],
+      comments: [ [:e1_1, "1ゲット"], [:e1_3, "ねるねるねるね"], ],
       footprints: [:u1],
-      relations:  [:u1],
+      relations: [:u1],
     },
     u3: {
-      info:       ['aaaaaaa', 'えい', 'aaaa@a.com', 'a1a1', 'えいいち', 'えいわ'],
-      entries:    [
-                    [:e3_1, false, 'はじめました!', 'わくわくしています!!!!'],
-                    [:e3_2, false, 'ともだちがいっぱい', "うれしいです!\nみんなぜひコメントを残してください!"],
-                    [:e3_3, true, 'あれー', "なんでみんな友だちになれたのにコメント残してくれないの？\nいっぱい足あとついてるのに？\nなんで？？？？？？"]
-                  ],
-      comments:   [
-                    [:e1_1, 'よろしくおねがいします!'], [:e1_2, 'よろしくおねがいします!'], [:e1_4, 'よろしくおねがいします!'], [:e2_1, 'よろしくおねがいします!'],
-                    [:e2_2, 'よろしくおねがいします!'], [:e4_1, 'よろしくおねがいします!'], [:e4_2, 'よろしくおねがいします!'], [:e4_3, 'よろしくおねがいします!'],
-                    [:e4_4, 'よろしくおねがいします!'], [:e4_5, 'よろしくおねがいします!'], [:e4_6, 'よろしくおねがいします!'], [:e3_3, 'もうだめだ'],
-                  ],
-      footprints: [:u1, :u2, :u4, :u5, :u6, :u1, :u2, :u4, :u5, :u6, :u1, :u2, :u4, :u5, :u6, :u1, :u2, :u4, :u5, :u6],
-      relations:  [:u1, :u2, :u4, :u5, :u6],
+      info: ['aaaaaaa', 'えい', 'aaaa@a.com', 'a1a1', 'えいいち', 'えいわ'],
+      entries: [
+        [ :e3_1, false, 'はじめました!', 'わくわくしています!!!!' ],
+        [ :e3_2, false, 'ともだちがいっぱい', "うれしいです!\nみんなぜひコメントを残してください!" ],
+        [ :e3_3, true, 'あれー', "なんでみんな友だちになれたのにコメント残してくれないの？\nいっぱい足あとついてるのに？\nなんで？？？？？？" ]
+      ],
+      comments: [
+        [:e1_1,'よろしくおねがいします!'],[:e1_2,'よろしくおねがいします!'],[:e1_4,'よろしくおねがいします!'],[:e2_1,'よろしくおねがいします!'],
+        [:e2_2,'よろしくおねがいします!'],[:e4_1,'よろしくおねがいします!'],[:e4_2,'よろしくおねがいします!'],[:e4_3,'よろしくおねがいします!'],
+        [:e4_4,'よろしくおねがいします!'],[:e4_5,'よろしくおねがいします!'],[:e4_6,'よろしくおねがいします!'],[:e3_3,'もうだめだ'],
+      ],
+      footprints: [:u1,:u2,:u4,:u5,:u6,:u1,:u2,:u4,:u5,:u6,:u1,:u2,:u4,:u5,:u6,:u1,:u2,:u4,:u5,:u6],
+      relations: [:u1,:u2,:u4,:u5,:u6],
     },
     u4: {
-      info:       ['bbbbbbb', 'b', 'b@b.net', 'bb', 'もう', 'つかれてきた'],
-      entries:    (1..30).map {|i| ["e4_#{i}".to_sym, (i % 5 == 0), i.to_s, i.to_s * i]},
-      comments:   [],
+      info: ['bbbbbbb', 'b', 'b@b.net', 'bb', 'もう', 'つかれてきた'],
+      entries: (1..30).map{|i| [ "e4_#{i}".to_sym, (i % 5 == 0), i.to_s, i.to_s * i ] },
+      comments: [],
       footprints: [],
-      relations:  [],
+      relations: [],
     },
     u5: {
-      info:       ['ccccc', 'ＣＣＣＣＣＣ', 'ccc@c.net', 'c?cx', 'まじねむい', 'もうだめ'],
-      entries:    [],
-      comments:   [],
-      footprints: [:u1, :u2, :u2, :u1, :u4, :u6, :u4, :u1, :u6],
-      relations:  [],
+      info: ['ccccc', 'ＣＣＣＣＣＣ', 'ccc@c.net', 'c?cx', 'まじねむい', 'もうだめ'],
+      entries: [],
+      comments: [],
+      footprints: [:u1,:u2,:u2,:u1,:u4,:u6,:u4,:u1,:u6],
+      relations: [],
     },
     u6: {
-      info:       ['ddd666', 'でぃーろく', 'ddddddddd@roku.com', 'ddd666', 'あとちょっと', 'たろう'],
-      entries:    [],
-      comments:   [],
+      info: ['ddd666', 'でぃーろく', 'ddddddddd@roku.com', 'ddd666', 'あとちょっと', 'たろう'],
+      entries: [],
+      comments: [],
       footprints: [],
-      relations:  [],
+      relations: [],
     }
   }
 
   tree.each_pair do |user_sym, data|
-    id              = create_user(data[:info][0], data[:info][1], data[:info][2], data[:info][3])
+    id = create_user(data[:info][0], data[:info][1], data[:info][2], data[:info][3])
     users[user_sym] = id
     create_profile(id, data[:info][4], data[:info][5])
     data[:entries].each do |entry|
-      entry_id          = create_entry(id, entry[1], entry[2], entry[3])
+      entry_id = create_entry(id, entry[1], entry[2], entry[3])
       entries[entry[0]] = entry_id
     end
   end
@@ -177,10 +177,10 @@ def add_footprint(user_id, owner_id)
 end
 
 def make_relation(one_id, another_id)
-  if db.prepare('SELECT * FROM relations WHERE one=? AND another=?').execute(one_id, another_id).first
+  if db.prepare('SELECT * FROM relations WHERE one=? AND another=?').execute(one_id,another_id).first
     return
   end
-  q  = 'INSERT INTO relations (one, another, created_at) VALUES (?,?,?), (?,?,?)'
+  q = 'INSERT INTO relations (one, another, created_at) VALUES (?,?,?), (?,?,?)'
   at = random_timestamp()
   db.prepare(q).execute(one_id, another_id, at, another_id, one_id, at)
   nil
@@ -203,16 +203,16 @@ def choose_sex
 end
 
 require 'time'
-BIRTH_TIME_MIN   = Time.parse('1970-01-01 00:00:00').to_i
-BIRTH_TIME_MAX   = Time.parse('2014-12-31 23:59:59').to_i
+BIRTH_TIME_MIN = Time.parse('1970-01-01 00:00:00').to_i
+BIRTH_TIME_MAX = Time.parse('2014-12-31 23:59:59').to_i
 BIRTH_TIME_RANGE = Range.new(BIRTH_TIME_MIN, BIRTH_TIME_MAX)
 
 def create_birthday
   Time.at(rand(BIRTH_TIME_RANGE)).strftime('%Y-%m-%d')
 end
 
-TIMESTAMP_MIN   = Time.parse('2013-09-17 10:00:00').to_i
-TIMESTAMP_MAX   = Time.parse('2015-09-17 01:20:30').to_i
+TIMESTAMP_MIN = Time.parse('2013-09-17 10:00:00').to_i
+TIMESTAMP_MAX = Time.parse('2015-09-17 01:20:30').to_i
 TIMESTAMP_RANGE = Range.new(TIMESTAMP_MIN, TIMESTAMP_MAX)
 
 def random_timestamp
