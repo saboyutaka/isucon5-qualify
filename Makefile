@@ -1,10 +1,9 @@
 .DEFAULT_GOAL := help
 
 config: ## copy configs from repository to conf
-	@sudo cp ~/private_isu/webapp/conf/systemd/isu-ruby.service /etc/systemd/system/
-	@sudo cp ~/private_isu/webapp/conf/nginx/nginx.conf /etc/nginx/
-	@sudo cp ~/private_isu/webapp/conf/nginx/isucon.conf /etc/nginx/conf.d/
-	@sudo cp ~/private_isu/webapp/conf/mysql/my.cnf /etc/mysql/
+	@sudo cp config/nginx.conf /etc/nginx/
+	@sudo cp config/isucon.conf /etc/nginx/conf.d/
+	@sudo cp config/my.cnf /etc/
 	@make -s nginx-restart
 	@make -s mysql-restart
 	@make -s ruby-restart
