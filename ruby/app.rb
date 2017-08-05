@@ -193,8 +193,9 @@ class Isucon5::WebApp < Sinatra::Base
         u.account_name AS account_name, u.nick_name as nick_name,
         c.comment AS comment, c.created_at AS created_at
       FROM comments c
+      JOIN entries e ON c.entry_id = e.id
       JOIN users u ON c.user_id = u.id
-      WHERE c.entry_user_id = ?
+      WHERE e.user_id = ?
       ORDER BY c.created_at DESC
       LIMIT 10
     SQL
@@ -362,8 +363,8 @@ class Isucon5::WebApp < Sinatra::Base
     if entry[:is_private] && !permitted?(entry[:user_id])
       raise Isucon5::PermissionDenied
     end
-    query = 'INSERT INTO comments (entry_id, user_id, entry_user_id, comment) VALUES (?,?,?,?)'
-    db.xquery(query, entry[:id], current_user[:id], entry[:user_id], params['comment'])
+    query = 'INSERT INTO comments (entry_id, user_id, comment) VALUES (?,?,?)'
+    db.xquery(query, entry[:id], current_user[:id], params['comment'])
     redirect "/diary/entry/#{entry[:id]}"
   end
 
