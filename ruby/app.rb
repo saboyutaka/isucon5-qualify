@@ -3,6 +3,9 @@ require 'mysql2'
 require 'mysql2-cs-bind'
 require 'tilt/erubis'
 require 'erubis'
+require 'rack-mini-profiler'
+require 'flamegraph'
+require 'stackprof'
 require 'pry'
 
 module Isucon5
@@ -27,6 +30,8 @@ class Isucon5::WebApp < Sinatra::Base
   #set :sessions, true
   set :session_secret, ENV['ISUCON5_SESSION_SECRET'] || 'beermoris'
   set :protection, true
+
+  use Rack::MiniProfiler if ENV['DEBUG']
 
   helpers do
     def config
