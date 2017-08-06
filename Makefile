@@ -2,7 +2,6 @@
 
 config: ## copy configs from repository to conf
 	@sudo cp config/nginx.conf /etc/nginx/
-	@sudo cp config/isucon.conf /etc/nginx/conf.d/
 	@sudo cp config/my.cnf /etc/
 	@make -s nginx-restart
 	@make -s mysql-restart
