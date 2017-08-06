@@ -1,10 +1,10 @@
 .DEFAULT_GOAL := help
 
-config: ## copy configs from repository to conf
+restart: ## copy configs from repository to conf
 	@sudo cp config/nginx.conf /etc/nginx/
 	@sudo cp config/my.cnf /etc/
 	@make -s nginx-restart
-	@make -s mysql-restart
+	@make -s db-restart
 	@make -s ruby-restart
 
 ruby-log: ## log Server
